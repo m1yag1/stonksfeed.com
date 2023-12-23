@@ -13,6 +13,7 @@ bs4 = "^0.0.1"
 lxml = "^4.9.4"
 jinja2 = "^3.1.2"
 boto3 = "^1.34.7"
+pytz = "^2023.3.post1"
 
 
 [build-system]
