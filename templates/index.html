@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h1>stonkfeeder</h1>
+
+<div>
+    <h2>Marketwatch Breaking News Bulletin</h2>
+    <ul>
+        {% for article in articles %}
+            {% if article.feed_name == "Breaking News Bulletin" %}
+                <li><a href="{{ article.link }}">{{ article.headline }}</a>
+            {% endif %}
+        {% endfor %}
+    </ul>
+
+    <h2>Marketwatch Real-time news</h2>
+    <ul>
+        {% for article in articles %}
+            {% if article.feed_name == "Real-time Headlines" %}
+                <li><a href="{{ article.link }}">{{ article.headline }}</a>
+            {% endif %}
+        {% endfor %}
+    </ul>
+
+</div>
+{% endblock content %}
