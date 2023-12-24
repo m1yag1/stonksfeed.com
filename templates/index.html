@@ -10,7 +10,7 @@
     <h2>Marketwatch "Market Pulse"</h2>
         <ul>
             {% for article in articles -%}
-                {% if article.feed_name == "Market Pulse" %}
+                {% if article.feed_title == "Market Pulse" %}
                     <li><a href="{{ article.link }}">{{ article.headline }}</a>
                 {% endif %}
             {% endfor -%}
@@ -19,7 +19,7 @@
     <h2>Marketwatch Top News</h2>
         <ul>
             {% for article in articles -%}
-                {% if article.feed_name == "Top Stories" %}
+                {% if article.feed_title == "Top Stories" %}
                     <li><a href="{{ article.link }}">{{ article.headline }}</a>
                 {% endif %}
             {% endfor -%}
@@ -28,7 +28,7 @@
     <h2>Marketwatch Breaking News Bulletin</h2>
     <ul>
         {% for article in articles %}
-            {% if article.feed_name == "Breaking News Bulletin" %}
+            {% if article.feed_title == "Breaking News Bulletin" %}
                 <li><a href="{{ article.link }}">{{ article.headline }}</a>
             {% endif %}
         {% endfor %}
@@ -37,7 +37,16 @@
     <h2>Marketwatch Real-time News</h2>
     <ul>
         {% for article in articles %}
-            {% if article.feed_name == "Real-time Headlines" %}
+            {% if article.feed_title == "Real-time Headlines" %}
+                <li><a href="{{ article.link }}">{{ article.headline }}</a>
+            {% endif %}
+        {% endfor %}
+    </ul>
+
+    <h2>WSJ.com - Technology: What's News</h2>
+    <ul>
+        {% for article in articles %}
+            {% if article.feed_title == "Technology: What's News" %}
                 <li><a href="{{ article.link }}">{{ article.headline }}</a>
             {% endif %}
         {% endfor %}

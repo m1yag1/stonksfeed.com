@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "stonkfeed"
+name = "stonksfeed"
 version = "0.1.0"
 description = "A stock investor's news feed par excelance"
 authors = ["m1yag1 <8730430+m1yag1@users.noreply.github.com>"]
