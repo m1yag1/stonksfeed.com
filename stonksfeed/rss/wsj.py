@@ -1,4 +1,5 @@
-from .base import RSSReader
+from stonksfeed.base import RSSReader
+
 
 wsj_tech_news_rss_reader = RSSReader(
     publisher="Wallstreet Journal",

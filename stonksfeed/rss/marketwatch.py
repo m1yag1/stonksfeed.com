@@ -1,4 +1,4 @@
-from .base import RSSReader
+from stonksfeed.base import RSSReader
 
 
 mw_marketpulse_rss_reader = RSSReader(

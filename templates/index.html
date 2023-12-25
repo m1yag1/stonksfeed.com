@@ -7,6 +7,24 @@
 
 <div>
 
+    <h2>Silicon Investor Forum: Artificial Intelligence, Rotobotics, Chat bots - ChatGPT</h2>
+    <ul>
+        {% for article in articles %}
+            {% if article.feed_title == "Artificial Intelligence, Robotics, Chat bots - ChatGPT" %}
+                <li><a href="{{ article.link }}">{{ article.headline }}</a>
+            {% endif %}
+        {% endfor %}
+    </ul>
+
+    <h2>Silicon Investor Forum: AMD, ARMH, INTC, NVDA</h2>
+    <ul>
+        {% for article in articles %}
+            {% if article.feed_title == "AMD, ARMH, INTC, NVDA" %}
+                <li><a href="{{ article.link }}">{{ article.headline }}</a>
+            {% endif %}
+        {% endfor %}
+    </ul>
+
     <h2>Marketwatch "Market Pulse"</h2>
         <ul>
             {% for article in articles -%}

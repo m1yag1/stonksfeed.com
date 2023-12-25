@@ -11,6 +11,7 @@ from stonksfeed.rss.marketwatch import (
     mw_top_stories_rss_reader
 )
 from stonksfeed.rss.wsj import wsj_tech_news_rss_reader
+from stonksfeed.web.siliconinvestor import si_ai_robotics_forum, si_amd_intel_nvda_forum
 
 
 def datetime_format(value, format="%Y-%d-%m %H:%M"):
@@ -34,12 +35,18 @@ def build_site(build_path, template_path):
     # Wallstreet Journal articles
     wsj_tech_news_articles = wsj_tech_news_rss_reader.get_articles()
 
+    # SiliconInvestor Forum Posts
+    si_ai_robotoics_articles = si_ai_robotics_forum.get_articles()
+    si_amd_intel_nvda_articles = si_amd_intel_nvda_forum.get_articles()
+
     articles = (
         mw_bulletin_articles
         + mw_realtime_articles
         + mw_top_stories_articles
         + mw_marketpulse_articles
         + wsj_tech_news_articles
+        + si_ai_robotoics_articles
+        + si_amd_intel_nvda_articles
     )
 
     # Write the main site index.html file
