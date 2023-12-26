@@ -14,7 +14,7 @@ from stonksfeed.rss.wsj import wsj_tech_news_rss_reader
 from stonksfeed.web.siliconinvestor import si_ai_robotics_forum, si_amd_intel_nvda_forum
 
 
-def datetime_format(value, format="%Y-%d-%m %H:%M"):
+def datetime_format(value, format="%Y-%m-%d %H:%M"):
     return value.strftime(format)
 
 

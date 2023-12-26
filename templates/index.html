@@ -11,7 +11,7 @@
     <ul>
         {% for article in articles %}
             {% if article.feed_title == "Artificial Intelligence, Robotics, Chat bots - ChatGPT" %}
-                <li><a href="{{ article.link }}">{{ article.headline }}</a>
+                <li><a href="{{ article.link }}" target="_blank">{{ article.headline }}</a>
             {% endif %}
         {% endfor %}
     </ul>
@@ -20,7 +20,7 @@
     <ul>
         {% for article in articles %}
             {% if article.feed_title == "AMD, ARMH, INTC, NVDA" %}
-                <li><a href="{{ article.link }}">{{ article.headline }}</a>
+                <li><a href="{{ article.link }}" target="_blank">{{ article.headline }}</a>
             {% endif %}
         {% endfor %}
     </ul>
@@ -29,7 +29,7 @@
         <ul>
             {% for article in articles -%}
                 {% if article.feed_title == "Market Pulse" %}
-                    <li><a href="{{ article.link }}">{{ article.headline }}</a>
+                    <li><a href="{{ article.link }}" target="_blank">{{ article.headline }}</a>
                 {% endif %}
             {% endfor -%}
         </ul>
@@ -38,7 +38,7 @@
         <ul>
             {% for article in articles -%}
                 {% if article.feed_title == "Top Stories" %}
-                    <li><a href="{{ article.link }}">{{ article.headline }}</a>
+                    <li><a href="{{ article.link }}" target="_blank">{{ article.headline }}</a>
                 {% endif %}
             {% endfor -%}
         </ul>
@@ -47,7 +47,7 @@
     <ul>
         {% for article in articles %}
             {% if article.feed_title == "Breaking News Bulletin" %}
-                <li><a href="{{ article.link }}">{{ article.headline }}</a>
+                <li><a href="{{ article.link }}" target="_blank">{{ article.headline }}</a>
             {% endif %}
         {% endfor %}
     </ul>
@@ -56,7 +56,7 @@
     <ul>
         {% for article in articles %}
             {% if article.feed_title == "Real-time Headlines" %}
-                <li><a href="{{ article.link }}">{{ article.headline }}</a>
+                <li><a href="{{ article.link }}" target="_blank">{{ article.headline }}</a>
             {% endif %}
         {% endfor %}
     </ul>
@@ -65,7 +65,7 @@
     <ul>
         {% for article in articles %}
             {% if article.feed_title == "Technology: What's News" %}
-                <li><a href="{{ article.link }}">{{ article.headline }}</a>
+                <li><a href="{{ article.link }}" target="_blank">{{ article.headline }}</a>
             {% endif %}
         {% endfor %}
     </ul>
