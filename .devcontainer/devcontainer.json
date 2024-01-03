@@ -1,0 +1,34 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/debian
+{
+	"name": "Terraform",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	// "image": "mcr.microsoft.com/devcontainers/base:bullseye"
+    "build":{
+        "dockerfile": "Dockerfile",
+        "context": "..",
+        "args": {
+			"OPA_VERSION": "0.60.0",
+			"TERRAFORM_VERSION": "1.6.6",
+			"TERRAGRUNT_VERSION": "0.54.12"
+		}
+    },
+    "containerEnv": {
+		"SHELL": "/bin/zsh"
+	},
+    // Add the IDs of extensions you want installed when the container is created.
+    "customizations": {
+        "vscode": {
+          "extensions": [
+            "hasicorp.terraform",
+            "redhat.vscode-yaml",
+            "tsandall.opa",
+            "ms-python.python"
+            ]
+        }
+      },
+    "remoteUser": "vscode",
+    "initializeCommand": "ls"
+}
+
+
