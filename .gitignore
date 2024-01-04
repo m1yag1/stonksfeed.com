@@ -31,3 +31,6 @@ terraform.rc
 
 # Ignore any local .terraform directories
 **/.terraform/*
+
+# Ignore terragrunt cache
+.terragrunt-cache
