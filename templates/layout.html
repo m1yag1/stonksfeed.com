@@ -4,7 +4,9 @@
     {%- block html %}
         <head>
             {% block head %}
+            <link rel="icon" type="image/png" href="static/favicon.png">
             <title>{% block title %}{% endblock title %}</title>
+
 
             {%- block metas %}
                 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
@@ -12,6 +14,44 @@
             {%- endblock metas %}
 
             {%- block styles %}
+            <style>
+            /* Body and background */
+                body {
+                background-color: #222;
+                color: #eee;
+                font-family: sans-serif;
+                line-height: 1.5;
+                padding: 20px;
+                }
+
+                /* Links */
+                a {
+                color: #9cf;
+                text-decoration: none;
+                }
+
+                a:hover {
+                color: #6be;
+                }
+
+                /* Heading styles */
+                h1, h2, h3 {
+                color: #fff;
+                }
+
+                /* Container */
+                .container {
+                max-width: 700px;
+                margin: 0 auto;
+                }
+
+                /* Media Queries for responsive design */
+                @media only screen and (max-width: 600px) {
+                body {
+                    padding: 10px;
+                }
+                }
+            </style>
             {%- endblock styles %}
             {% endblock head %}
         </head>

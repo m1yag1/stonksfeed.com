@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+
+{% block styles %}
+<style>
+    /* Add this within the <head> section of your HTML document under a <style> tag */
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            background-color: #222;
+            padding: 20px;
+            color: #f4f4f4;
+          }
+
+          h1 {
+            color: #f4f4f4;
+          }
+
+          h2 {
+            color: #82bef6;
+          }
+
+          ul {
+            list-style-type: none; /* Removes default bullet points */
+            padding: 0;
+          }
+
+          li {
+            background-color: #333;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          }
+
+          strong {
+            color: #f4f4f4;
+            font-weight: bold;
+          }
+
+</style>
+{% endblock styles %}
+
+{% block content %}
+<h1> Tech Valuation Measures</h1>
+<a href="index.html">Back</a>
+{% for measure in measures %}
+  <h2>{{ measure.name }}</h2>
+  <ul>
+    <li><strong>Definition:</strong> {{ measure.definition }}</li>
+    <li><strong>Math:</strong> {{ measure.math }}</li>
+    <li><strong>Importance:</strong> {{ measure.importance }}</li>
+  </ul>
+{% endfor %}
+
+
+{% endblock content %}

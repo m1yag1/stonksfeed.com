@@ -6,6 +6,9 @@ ARG USERNAME=vscode
 ARG OPA_VERSION
 ARG TERRAFORM_VERSION
 ARG TERRAGRUNT_VERSION
+ARG POETRY_VERSION
+
+ENV POETRY_VERSION=${POETRY_VERSION}
 
 # Set timezone
 ENV TZ=America/Chicago
@@ -31,7 +34,7 @@ RUN curl -Lo terragrunt https://github.com/gruntwork-io/terragrunt/releases/down
 
 # Install Checkov
 RUN pip3 install --upgrade requests setuptools \
-    && pip3 install --upgrade botocore checkov
+    && pip3 install --upgrade botocore checkov poetry
 
 # Install OPA
 RUN curl -Lo opa https://github.com/open-policy-agent/opa/releases/download/v"${OPA_VERSION}"/opa_linux_"$(dpkg --print-architecture)" \
