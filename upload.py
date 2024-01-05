@@ -7,7 +7,7 @@ def upload_site(build_path):
     s3 = boto3.client("s3", region_name="us-east-1")
 
     # Upload Files Recursively
-    bucket_name = "stonksfeed"
+    bucket_name = "stonksfeed-prod"
 
     for root, dirs, files in os.walk(build_path):
         for file in files:

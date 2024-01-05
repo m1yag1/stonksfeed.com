@@ -64,6 +64,7 @@ def build_site(build_path, template_path, static_path):
         outfile.write(rendered_template)
 
     # Copy static folder
+    shutil.rmtree(os.path.join(build_path, "static"), ignore_errors=True)
     shutil.copytree(static_path, os.path.join(build_path, "static"))
 
 

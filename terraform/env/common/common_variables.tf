@@ -8,6 +8,11 @@ variable "env" {
   type        = string
 }
 
+variable "service_name" {
+  description = "(Required) The service name of what is being deployed"
+  type        = string
+}
+
 variable "region" {
   description = "(Required) The region to build infra in"
   type        = string
