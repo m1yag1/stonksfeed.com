@@ -39,7 +39,7 @@ class BaseReader:
 
 class RSSReader(BaseReader):
     def __init__(self, publisher, feed_title, rss_url):
-        super().__init__(publisher, feed_title, rss_url, parser="xml")
+        super().__init__(publisher, feed_title, rss_url)
 
     def get_articles(self):
         feed = self._fetch_content()

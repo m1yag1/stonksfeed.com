@@ -1,21 +1,25 @@
 [tool.poetry]
 name = "stonksfeed"
-version = "0.1.0"
-description = "A stock investor's news feed par excelance"
-authors = ["m1yag1 <8730430+m1yag1@users.noreply.github.com>"]
-license = "MIT"
+version = "0.1.4"
+description = "A stock investor's news feed par excelance!"
+authors = ["m1yag1 <mike.arbelaez@gmail.com>"]
+license = "GPLv3"
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.9"
 requests = "^2.31.0"
 bs4 = "^0.0.1"
-lxml = "^4.9.4"
 jinja2 = "^3.1.2"
-boto3 = "^1.34.7"
 pytz = "^2023.3.post1"
-pytest = "^7.4.3"
+urllib3 = "<1.27,>=1.25.4"
 
+[tool.poetry.group.dev.dependencies]
+aws-sam-cli = "^1.106.0"
+checkov = "^3.1.53"
+setuptools = "69.0.3"
+pytest = "^7.4.3"
+boto3 = "^1.34.7"
 
 [build-system]
 requires = ["poetry-core"]

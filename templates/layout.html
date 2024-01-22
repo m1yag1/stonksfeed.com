@@ -39,18 +39,37 @@
                 color: #fff;
                 }
 
-                /* Container */
+                /* Container
                 .container {
                 max-width: 700px;
                 margin: 0 auto;
                 }
+                */
 
                 /* Media Queries for responsive design */
                 @media only screen and (max-width: 600px) {
-                body {
-                    padding: 10px;
+                    body {
+                        padding: 10px;
+                    }
                 }
+
+                .container {
+                    display: flex; /* Enable flexbox layout */
+                    flex-wrap: wrap; /* Allow columns to wrap on smaller screens */
+                  }
+
+
+                .col1, .col2 {
+                width: 50%; /* Set each column to occupy 50% of container width initially */
                 }
+
+                @media (max-width: 768px) {
+                /* Styles applied for screens with a maximum width of 768px (phones) */
+                    .col1, .col2 {
+                        width: 100%; /* Switch columns to occupy 100% of container width on smaller screens */
+                    }
+                }
+
             </style>
             {%- endblock styles %}
             {% endblock head %}

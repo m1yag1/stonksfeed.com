@@ -8,8 +8,7 @@ from jinja2 import Environment, FileSystemLoader
 from stonksfeed.rss.marketwatch import (
     mw_bulletins_rss_reader,
     mw_marketpulse_rss_reader,
-    mw_realtime_rss_reader,
-    mw_top_stories_rss_reader
+    mw_realtime_rss_reader
 )
 from stonksfeed.rss.wsj import wsj_tech_news_rss_reader
 from stonksfeed.web.siliconinvestor import si_ai_robotics_forum, si_amd_intel_nvda_forum
@@ -30,7 +29,6 @@ def build_site(build_path, template_path, static_path):
 
     # Marketwatch RSS articles
     mw_marketpulse_articles = mw_marketpulse_rss_reader.get_articles()
-    mw_top_stories_articles = mw_top_stories_rss_reader.get_articles()
     mw_bulletin_articles = mw_bulletins_rss_reader.get_articles()
     mw_realtime_articles = mw_realtime_rss_reader.get_articles()
 
@@ -44,7 +42,6 @@ def build_site(build_path, template_path, static_path):
     articles = (
         mw_bulletin_articles
         + mw_realtime_articles
-        + mw_top_stories_articles
         + mw_marketpulse_articles
         + wsj_tech_news_articles
         + si_ai_robotoics_articles
