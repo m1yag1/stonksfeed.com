@@ -35,3 +35,9 @@ terraform.rc
 
 # Ignore terragrunt cache
 .terragrunt-cache
+
+
+# AWS SAM
+.aws-sam*
+
+**/lambda-build-site/build/*

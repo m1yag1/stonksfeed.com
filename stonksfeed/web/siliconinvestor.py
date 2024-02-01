@@ -1,9 +1,12 @@
+from datetime import datetime
+import pytz
 from stonksfeed.base import Article, BaseReader
 
 
 class SiliconInvestorPage(BaseReader):
     def __init__(self, title, url):
         self.root_url = "http://www.siliconinvestor.com/"
+        self.source_type = "forum post"
         super().__init__("Silicon Investor", title, url)
 
     def _build_link(self, partial):
@@ -19,12 +22,18 @@ class SiliconInvestorPage(BaseReader):
             title = self.title
             headline = item.text
             link = self._build_link(item["href"])
-            # FIXME: No easy way to get pub_date using only requests ATM.
-            pub_date = None
-            article = Article(publisher, title, headline, link, pub_date)
+            # FIXME: No easy way to get pub_date so using current time.
+            pubdate = self.get_current_epoch()
+            article = Article(publisher, title, headline, link, pubdate, self.source_type)
             articles.append(article)
 
         return articles
+
+    def get_current_epoch(self):
+        # Get the current time with timezone information
+        current_time = datetime.now(pytz.timezone("GMT"))
+        return int(current_time.timestamp())
+
 
 
 si_ai_robotics_forum = SiliconInvestorPage(

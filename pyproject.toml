@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "stonksfeed"
-version = "0.1.4"
+version = "0.1.5"
 description = "A stock investor's news feed par excelance!"
 authors = ["m1yag1 <mike.arbelaez@gmail.com>"]
 license = "GPLv3"
@@ -13,6 +13,7 @@ bs4 = "^0.0.1"
 jinja2 = "^3.1.2"
 pytz = "^2023.3.post1"
 urllib3 = "<1.27,>=1.25.4"
+python-dateutil = "^2.8.2"
 
 [tool.poetry.group.dev.dependencies]
 aws-sam-cli = "^1.106.0"
