@@ -1,3 +1,4 @@
+# pragma: no cover
 measures = [
     {
         "name": "Price-to-Earnings Ratio (P/E)",

@@ -5,14 +5,11 @@ from datetime import datetime
 
 from jinja2 import Environment, FileSystemLoader
 
-from stonksfeed.rss.marketwatch import (
-    mw_bulletins_rss_reader,
-    mw_marketpulse_rss_reader,
-    mw_realtime_rss_reader
-)
-from stonksfeed.rss.wsj import wsj_tech_news_rss_reader
-from stonksfeed.web.siliconinvestor import si_ai_robotics_forum, si_amd_intel_nvda_forum
+from stonksfeed.web.siliconinvestor import (si_ai_robotics_forum,
+                                            si_amd_intel_nvda_forum)
 from stonksfeed.measures import measures
+from stonksfeed.config import rss_feeds
+from stonksfeed.rss.rss_reader import RSSReader
 
 
 def datetime_format(value, format="%Y-%m-%d %H:%M"):
@@ -27,26 +24,22 @@ def build_site(build_path, template_path, static_path):
     chicago_tz = pytz.timezone("America/Chicago")
     now = datetime.now(chicago_tz)
 
-    # Marketwatch RSS articles
-    mw_marketpulse_articles = mw_marketpulse_rss_reader.get_articles()
-    mw_bulletin_articles = mw_bulletins_rss_reader.get_articles()
-    mw_realtime_articles = mw_realtime_rss_reader.get_articles()
+    articles = []
 
-    # Wallstreet Journal articles
-    wsj_tech_news_articles = wsj_tech_news_rss_reader.get_articles()
+    for feed in rss_feeds:
+        reader = RSSReader(
+            publisher=feed["publisher"],
+            feed_title=feed["feed_title"],
+            rss_url=feed["rss_url"]
+        )
+        articles += reader.get_articles()
 
     # SiliconInvestor Forum Posts
     si_ai_robotoics_articles = si_ai_robotics_forum.get_articles()
     si_amd_intel_nvda_articles = si_amd_intel_nvda_forum.get_articles()
 
-    articles = (
-        mw_bulletin_articles
-        + mw_realtime_articles
-        + mw_marketpulse_articles
-        + wsj_tech_news_articles
-        + si_ai_robotoics_articles
-        + si_amd_intel_nvda_articles
-    )
+    articles += si_ai_robotoics_articles
+    articles += si_amd_intel_nvda_articles
 
     # Write the main site index.html file
     with open(os.path.join(build_path, "index.html"), "w") as outfile:

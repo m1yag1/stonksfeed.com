@@ -5,6 +5,9 @@ __pycache__
 .vscode
 dist/*
 
+# coverage
+.coverage
+
 # Local .terraform directories
 **/.terraform/*
 
@@ -40,4 +43,4 @@ terraform.rc
 # AWS SAM
 .aws-sam*
 
-**/lambda-build-site/build/*
+**/lambda-stonksfeed/build/*

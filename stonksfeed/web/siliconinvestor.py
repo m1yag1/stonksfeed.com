@@ -1,6 +1,7 @@
 from datetime import datetime
 import pytz
-from stonksfeed.base import Article, BaseReader
+from stonksfeed.models.article import Article
+from stonksfeed.rss.base import BaseReader
 
 
 class SiliconInvestorPage(BaseReader):
@@ -24,7 +25,9 @@ class SiliconInvestorPage(BaseReader):
             link = self._build_link(item["href"])
             # FIXME: No easy way to get pub_date so using current time.
             pubdate = self.get_current_epoch()
-            article = Article(publisher, title, headline, link, pubdate, self.source_type)
+            article = Article(
+                publisher, title, headline, link, pubdate, self.source_type
+            )
             articles.append(article)
 
         return articles
@@ -35,13 +38,12 @@ class SiliconInvestorPage(BaseReader):
         return int(current_time.timestamp())
 
 
-
 si_ai_robotics_forum = SiliconInvestorPage(
     title="Artificial Intelligence, Robotics, Chat bots - ChatGPT",
-    url="https://www.siliconinvestor.com/subject.aspx?subjectid=59856"
-    )
+    url="https://www.siliconinvestor.com/subject.aspx?subjectid=59856",
+)
 
 si_amd_intel_nvda_forum = SiliconInvestorPage(
     title="AMD, ARMH, INTC, NVDA",
-    url="https://www.siliconinvestor.com/subject.aspx?subjectid=58128"
+    url="https://www.siliconinvestor.com/subject.aspx?subjectid=58128",
 )

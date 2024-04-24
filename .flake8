@@ -1,1 +1,5 @@
 max-line-length = 120
+
+extend-ignore =
+    # Line too long
+    E501
