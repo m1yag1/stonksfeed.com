@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h1>Gappers</h1>
+
+{% for gapper in gappers %}
+
+<h2>{{ gapper.date | datetime_format("%B %d %Y") }}</h2>
+
+Gapping up:
+<ul>
+    {% for ticker in gapper.gapping_up %}
+        <li>{{ ticker.ticker }} {{ticker.amount}}</li>
+    {% endfor %}
+</ul>
+
+Gapping down:
+
+<ul>
+    {% for ticker in gapper.gapping_down %}
+        <li>{{ ticker.ticker }} {{ticker.amount}}</li>
+    {% endfor %}
+</ul>
+{% endfor %}
+
+{% endblock content%}
