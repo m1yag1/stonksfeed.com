@@ -9,9 +9,14 @@
 <h2>{{ gapper.date | datetime_format("%B %d %Y") }}</h2>
 
 Gapping up:
+
 <ul>
     {% for ticker in gapper.gapping_up %}
+        {% if ticker.yahoo_finance_url %}
+        <li><a href="{{ ticker.yahoo_finance_url }}">{{ ticker.ticker }} {{ ticker.amount }}</a></li>
+        {% else %}
         <li>{{ ticker.ticker }} {{ticker.amount}}</li>
+        {% endif %}
     {% endfor %}
 </ul>
 
@@ -19,9 +24,14 @@ Gapping down:
 
 <ul>
     {% for ticker in gapper.gapping_down %}
+        {% if ticker.yahoo_finance_url %}
+        <li><a href="{{ ticker.yahoo_finance_url }}">{{ ticker.ticker }} {{ ticker.amount }}</a></li>
+        {% else %}
         <li>{{ ticker.ticker }} {{ticker.amount}}</li>
+        {% endif %}
     {% endfor %}
 </ul>
+
 {% endfor %}
 
 {% endblock content%}

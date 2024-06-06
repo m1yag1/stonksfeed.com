@@ -40,9 +40,10 @@ def get_gappers():
             gapper_data["date"] = file_date
             gapper_data["gapping_up"] = file_data["gapping_up"]
             gapper_data["gapping_down"] = file_data["gapping_down"]
+            gapper_data["yahoo_finance_url"] = file_data.get("yahoo_finance_url")
 
             gappers.append(gapper_data)
-    return gappers
+    return sorted(gappers, key=lambda x: x["date"], reverse=True)
 
 
 def build_site(build_path, template_path, static_path):
