@@ -2,11 +2,6 @@
 rss_feeds = [
     {
         "publisher": "Marketwatch",
-        "feed_title": "Market Pulse",
-        "rss_url": "https://feeds.content.dowjones.io/public/rss/mw_marketpulse"
-    },
-    {
-        "publisher": "Marketwatch",
         "feed_title": "Breaking News Bulletin",
         "rss_url": "https://feeds.content.dowjones.io/public/rss/mw_bulletins"
     },
