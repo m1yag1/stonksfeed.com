@@ -14,6 +14,8 @@
             {%- endblock metas %}
 
             {%- block styles %}
+            <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css">
+
             <style>
             /* Body and background */
                 body {
@@ -102,6 +104,13 @@
                     <p>
                 </noscript>
                 <!-- ADD JAVASCRIPT SOURCES NEEDED FOR ALL TEMPLATES -->
+                <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+                <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+                <script>
+                    $(document).ready( function () {
+                        let table = new DataTable('#stonkstable');
+                    } );
+                </script>
             {% endblock scripts %}
         {%- endblock body %}
         </body>

@@ -11,68 +11,25 @@
     </ul>
 </nav>
 
-<div class="container">
-
-    <div class="col1">
-
-        <h2>Silicon Investor Forum: Artificial Intelligence, Rotobotics, Chat bots - ChatGPT</h2>
-        <ul>
-            {% for article in articles %}
-                {% if article.feed_title == "Artificial Intelligence, Robotics, Chat bots - ChatGPT" %}
-                    <li><a href="{{ article.link }}" target="_blank">{{ article.headline }}</a>
-                {% endif %}
+<div>
+    <table id="stonkstable">
+        <thead>
+            <tr>
+                <th>publisher</th>
+                <th>feed title</th>
+                <th>headline</th>
+            </tr
+        </thead>
+        <tbody>
+            {% for article in articles%}
+            <tr>
+                <td>{{ article.publisher }}</td>
+                <td>{{ article.feed_title }}</td>
+                <td><a href="{{ article.link }}" target="_blank">{{ article.headline }} </a></td>
+            </tr>
             {% endfor %}
-        </ul>
-
-        <h2>Silicon Investor Forum: AMD, ARMH, INTC, NVDA</h2>
-        <ul>
-            {% for article in articles %}
-                {% if article.feed_title == "AMD, ARMH, INTC, NVDA" %}
-                    <li><a href="{{ article.link }}" target="_blank">{{ article.headline }}</a>
-                {% endif %}
-            {% endfor %}
-        </ul>
-
-        <h2>Marketwatch "Market Pulse"</h2>
-            <ul>
-                {% for article in articles -%}
-                    {% if article.feed_title == "Market Pulse" %}
-                        <li><a href="{{ article.link }}" target="_blank">{{ article.headline }}</a>
-                    {% endif %}
-                {% endfor -%}
-            </ul>
-
-
-    </div>
-    <div class="col2">
-        <h2>Marketwatch Breaking News Bulletin</h2>
-        <ul>
-            {% for article in articles %}
-                {% if article.feed_title == "Breaking News Bulletin" %}
-                    <li><a href="{{ article.link }}" target="_blank">{{ article.headline }}</a>
-                {% endif %}
-            {% endfor %}
-        </ul>
-
-        <h2>Marketwatch Real-time News</h2>
-        <ul>
-            {% for article in articles %}
-                {% if article.feed_title == "Real-time Headlines" %}
-                    <li><a href="{{ article.link }}" target="_blank">{{ article.headline }}</a>
-                {% endif %}
-            {% endfor %}
-        </ul>
-
-        <h2>WSJ.com - Technology: What's News</h2>
-        <ul>
-            {% for article in articles %}
-                {% if article.feed_title == "Technology: What's News" %}
-                    <li><a href="{{ article.link }}" target="_blank">{{ article.headline }}</a>
-                {% endif %}
-            {% endfor %}
-        </ul>
-
-    </div>
+        </tbody>
+    </table>
 
 </div>
 {% endblock content %}
