@@ -23,7 +23,8 @@ uv sync
 | `CiCd` | IAM user and credentials for GitHub Actions | None |
 | `Data` | DynamoDB table for articles | None |
 | `Backend` | Lambda function + EventBridge schedule for RSS fetching | Data |
-| `Static` | S3 bucket, CloudFront, ACM certificate, Route53 | None |
+| `Api` | API Gateway + Lambda for serving articles | Data |
+| `Static` | S3 bucket, CloudFront, ACM certificate, Route53 | None (optionally Api) |
 
 ## Deployment Order
 
@@ -50,8 +51,7 @@ ave marbz-admin -- uv run cdk deploy \
   -c account=${AWS_ACCOUNT} \
   -c region=${AWS_REGION}
 
-# 4. Deploy Backend stack (creates Lambda + schedule)
-# First get the table outputs from the Data stack
+# 4. Get table outputs for subsequent stacks
 TABLE_NAME=$(ave marbz-admin -- aws cloudformation describe-stacks \
   --stack-name Stonksfeed-Data-Production \
   --query "Stacks[0].Outputs[?OutputKey=='TableName'].OutputValue" \
@@ -61,6 +61,7 @@ TABLE_ARN=$(ave marbz-admin -- aws cloudformation describe-stacks \
   --query "Stacks[0].Outputs[?OutputKey=='TableArn'].OutputValue" \
   --output text)
 
+# 5. Deploy Backend stack (creates Lambda + schedule for RSS fetching)
 ave marbz-admin -- uv run cdk deploy \
   -c stack_type=backend \
   -c environment=production \
@@ -69,12 +70,32 @@ ave marbz-admin -- uv run cdk deploy \
   -c account=${AWS_ACCOUNT} \
   -c region=${AWS_REGION}
 
-# 5. Deploy Static Site stack (creates S3, CloudFront, ACM, Route53)
+# 6. Deploy API stack (creates API Gateway + Lambda for serving articles)
+ave marbz-admin -- uv run cdk deploy \
+  -c stack_type=api \
+  -c environment=production \
+  -c table_name=${TABLE_NAME} \
+  -c table_arn=${TABLE_ARN} \
+  -c account=${AWS_ACCOUNT} \
+  -c region=${AWS_REGION}
+
+# 7. Get API outputs for static stack
+API_ENDPOINT=$(ave marbz-admin -- aws cloudformation describe-stacks \
+  --stack-name Stonksfeed-Api-Production \
+  --query "Stacks[0].Outputs[?OutputKey=='ApiEndpoint'].OutputValue" \
+  --output text)
+API_SECRET=$(ave marbz-admin -- aws secretsmanager get-secret-value \
+  --secret-id stonksfeed/production/origin-verify \
+  --query SecretString --output text)
+
+# 8. Deploy Static Site stack (with API integration)
 ave marbz-admin -- uv run cdk deploy \
   -c environment=production \
   -c domain=stonksfeed.com \
   -c hosted_zone_domain=stonksfeed.com \
-  -c create_hosted_zone=true \
+  -c create_hosted_zone=false \
+  -c api_endpoint=${API_ENDPOINT} \
+  -c api_origin_secret=${API_SECRET} \
   -c account=${AWS_ACCOUNT} \
   -c region=${AWS_REGION}
 ```
@@ -93,14 +114,21 @@ ave marbz-admin -- uv run cdk destroy Stonksfeed-Production \
   -c account=${AWS_ACCOUNT} \
   -c region=${AWS_REGION}
 
-# 2. Destroy Backend stack
+# 2. Destroy API stack
+ave marbz-admin -- uv run cdk destroy Stonksfeed-Api-Production \
+  -c stack_type=api \
+  -c environment=production \
+  -c account=${AWS_ACCOUNT} \
+  -c region=${AWS_REGION}
+
+# 3. Destroy Backend stack
 ave marbz-admin -- uv run cdk destroy Stonksfeed-Backend-Production \
   -c stack_type=backend \
   -c environment=production \
   -c account=${AWS_ACCOUNT} \
   -c region=${AWS_REGION}
 
-# 3. Destroy Data stack
+# 4. Destroy Data stack
 # NOTE: DynamoDB table has RETAIN policy - may need manual deletion
 ave marbz-admin -- uv run cdk destroy Stonksfeed-Data-Production \
   -c stack_type=data \
@@ -108,7 +136,7 @@ ave marbz-admin -- uv run cdk destroy Stonksfeed-Data-Production \
   -c account=${AWS_ACCOUNT} \
   -c region=${AWS_REGION}
 
-# 4. Destroy CI/CD stack (do this last)
+# 5. Destroy CI/CD stack (do this last)
 ave marbz-admin -- uv run cdk destroy Stonksfeed-CiCd \
   -c stack_type=cicd \
   -c account=${AWS_ACCOUNT} \
@@ -133,6 +161,11 @@ ave marbz-admin -- aws cloudformation describe-stacks \
   --stack-name Stonksfeed-Production \
   --query "Stacks[0].Outputs"
 
+# API outputs
+ave marbz-admin -- aws cloudformation describe-stacks \
+  --stack-name Stonksfeed-Api-Production \
+  --query "Stacks[0].Outputs"
+
 # CI/CD credentials (retrieve from Secrets Manager)
 ave marbz-admin -- aws secretsmanager get-secret-value \
   --secret-id stonksfeed/cicd/credentials
@@ -150,3 +183,13 @@ uv run cdk diff -c environment=production -c account=${AWS_ACCOUNT} -c region=${
 # List all stacks
 uv run cdk list -c account=${AWS_ACCOUNT} -c region=${AWS_REGION}
 ```
+
+## API Security
+
+The API is protected by a secret header validation:
+
+1. **CloudFront** adds `x-origin-verify` header with secret value to all `/api/*` requests
+2. **API Gateway Lambda** validates the header matches the expected secret
+3. **Direct API Gateway access** without the header returns 403 Forbidden
+
+This ensures only requests through CloudFront can access the API.

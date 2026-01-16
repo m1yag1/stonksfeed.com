@@ -5,6 +5,7 @@ Creates:
 - S3 bucket for static content (private, OAC access)
 - CloudFront distribution
 - Optional: ACM certificate and Route53 record for custom domain
+- Optional: API Gateway origin with secret header validation
 """
 
 from typing import Any
@@ -32,6 +33,7 @@ class StaticSiteStack(Stack):
     - S3 bucket (private) for hosting built assets
     - CloudFront distribution with OAC for secure S3 access
     - Optional: ACM certificate and Route53 record for custom domain
+    - Optional: API Gateway origin for /api/* paths with secret header
     """
 
     def __init__(
@@ -41,6 +43,8 @@ class StaticSiteStack(Stack):
         env_name: str,
         domain_name: str | None = None,
         hosted_zone_domain: str | None = None,
+        api_endpoint: str | None = None,
+        api_origin_secret: str | None = None,
         **kwargs: Any,
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
@@ -48,6 +52,8 @@ class StaticSiteStack(Stack):
         self.env_name = env_name
         self.domain_name = domain_name
         self.hosted_zone_domain = hosted_zone_domain
+        self.api_endpoint = api_endpoint
+        self.api_origin_secret = api_origin_secret
 
         # Create S3 bucket for static content
         self.bucket = self._create_bucket()
@@ -137,6 +143,25 @@ class StaticSiteStack(Stack):
             certificate_name=f"stonksfeed-{self.env_name}-cert",
         )
 
+    def _create_api_origin(self) -> origins.HttpOrigin | None:
+        """Create API Gateway origin with custom header."""
+        if not self.api_endpoint:
+            return None
+
+        # Extract domain from API endpoint URL
+        # API endpoint format: https://<api-id>.execute-api.<region>.amazonaws.com
+        api_domain = self.api_endpoint.replace("https://", "").replace("http://", "").rstrip("/")
+
+        custom_headers = {}
+        if self.api_origin_secret:
+            custom_headers["x-origin-verify"] = self.api_origin_secret
+
+        return origins.HttpOrigin(
+            api_domain,
+            protocol_policy=cloudfront.OriginProtocolPolicy.HTTPS_ONLY,
+            custom_headers=custom_headers,
+        )
+
     def _create_distribution(self) -> cloudfront.Distribution:
         """Create CloudFront distribution for the static site."""
         oac = cloudfront.S3OriginAccessControl(
@@ -151,6 +176,19 @@ class StaticSiteStack(Stack):
             origin_path=f"/{self.env_name}",
         )
 
+        # Additional behaviors for API
+        additional_behaviors: dict[str, cloudfront.BehaviorOptions] = {}
+
+        api_origin = self._create_api_origin()
+        if api_origin:
+            additional_behaviors["/api/*"] = cloudfront.BehaviorOptions(
+                origin=api_origin,
+                viewer_protocol_policy=cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+                allowed_methods=cloudfront.AllowedMethods.ALLOW_ALL,
+                cache_policy=cloudfront.CachePolicy.CACHING_DISABLED,
+                origin_request_policy=cloudfront.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
+            )
+
         distribution_props: dict[str, Any] = {
             "default_behavior": cloudfront.BehaviorOptions(
                 origin=s3_origin,
@@ -158,6 +196,7 @@ class StaticSiteStack(Stack):
                 cache_policy=cloudfront.CachePolicy.CACHING_OPTIMIZED,
                 allowed_methods=cloudfront.AllowedMethods.ALLOW_GET_HEAD,
             ),
+            "additional_behaviors": additional_behaviors,
             "default_root_object": "index.html",
             "comment": f"Stonksfeed - {self.env_name}",
             "error_responses": [
@@ -248,4 +287,12 @@ class StaticSiteStack(Stack):
                 "SiteUrl",
                 value=f"https://{self.distribution.distribution_domain_name}",
                 description="Site URL (CloudFront)",
+            )
+
+        if self.api_endpoint:
+            CfnOutput(
+                self,
+                "ApiPath",
+                value=f"https://{self.domain_name or self.distribution.distribution_domain_name}/api/articles",
+                description="API endpoint through CloudFront",
             )

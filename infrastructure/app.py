@@ -7,11 +7,12 @@ Stack types:
 - static: Creates S3 + CloudFront for static site hosting
 - data: Creates DynamoDB table for articles
 - backend: Creates Lambda + EventBridge schedule for RSS fetching
+- api: Creates API Gateway + Lambda for serving articles
 """
 
 import aws_cdk as cdk
 
-from stacks import BackendStack, CiCdStack, DataStack, StaticSiteStack
+from stacks import ApiStack, BackendStack, CiCdStack, DataStack, StaticSiteStack
 
 
 class StonksfeedApp(cdk.App):
@@ -62,13 +63,35 @@ class StonksfeedApp(cdk.App):
                 table_arn=table_arn,
                 env=env_config,
             )
+        elif stack_type == "api":
+            # API stack needs references to data stack outputs
+            table_name = self.node.try_get_context("table_name")
+            table_arn = self.node.try_get_context("table_arn")
+            if not table_name or not table_arn:
+                raise ValueError(
+                    "table_name and table_arn context values are required for api stack"
+                )
+            ApiStack(
+                self,
+                f"Stonksfeed-Api-{env_name.title()}",
+                env_name=env_name,
+                table_name=table_name,
+                table_arn=table_arn,
+                env=env_config,
+            )
         else:
+            # Optional API integration
+            api_endpoint = self.node.try_get_context("api_endpoint")
+            api_origin_secret = self.node.try_get_context("api_origin_secret")
+
             StaticSiteStack(
                 self,
                 f"Stonksfeed-{env_name.title()}",
                 env_name=env_name,
                 domain_name=domain_name,
                 hosted_zone_domain=hosted_zone_domain,
+                api_endpoint=api_endpoint,
+                api_origin_secret=api_origin_secret,
                 env=env_config,
             )
 

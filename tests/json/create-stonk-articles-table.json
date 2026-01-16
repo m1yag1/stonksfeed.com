@@ -1,0 +1,28 @@
+{
+    "AttributeDefinitions": [
+        {
+            "AttributeName": "headline",
+            "AttributeType": "S"
+        },
+        {
+            "AttributeName": "pubdate",
+            "AttributeType": "N"
+        }
+    ],
+    "TableName": "stonk_articles_prod_table",
+    "KeySchema": [
+        {
+            "AttributeName": "headline",
+            "KeyType": "HASH"
+        },
+        {
+            "AttributeName": "pubdate",
+            "KeyType": "RANGE"
+        }
+    ],
+    "ProvisionedThroughput": {
+        "ReadCapacityUnits": 1,
+        "WriteCapacityUnits": 1
+      }
+}
+
