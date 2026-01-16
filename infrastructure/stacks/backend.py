@@ -6,10 +6,17 @@ Creates:
 - EventBridge rule for scheduled execution
 """
 
+import os
+import shutil
+import subprocess
+from pathlib import Path
+
 import aws_cdk as cdk
 from aws_cdk import (
+    BundlingOptions,
     CfnOutput,
     Duration,
+    ILocalBundling,
     Stack,
     aws_events as events,
     aws_events_targets as targets,
@@ -18,6 +25,48 @@ from aws_cdk import (
     aws_logs as logs,
 )
 from constructs import Construct
+import jsii
+
+
+@jsii.implements(ILocalBundling)
+class LocalBundler:
+    """Local bundler for Python Lambda that installs pip dependencies."""
+
+    def try_bundle(self, output_dir: str, options: BundlingOptions) -> bool:
+        """
+        Bundle the Lambda code with pip dependencies.
+
+        :param output_dir: Directory where bundled code should be placed
+        :param options: Bundling options (not used for local bundling)
+        :return: True if bundling succeeded
+        """
+        source_dir = Path("lambdas/fetch_rss")
+
+        # Copy all source files to output
+        for item in source_dir.iterdir():
+            dest = Path(output_dir) / item.name
+            if item.is_dir():
+                shutil.copytree(item, dest)
+            else:
+                shutil.copy2(item, dest)
+
+        # Install pip dependencies
+        requirements = source_dir / "requirements.txt"
+        if requirements.exists():
+            subprocess.run(
+                [
+                    "pip",
+                    "install",
+                    "-r",
+                    str(requirements),
+                    "-t",
+                    output_dir,
+                    "--quiet",
+                ],
+                check=True,
+            )
+
+        return True
 
 
 class BackendStack(Stack):
@@ -54,13 +103,20 @@ class BackendStack(Stack):
 
     def _create_fetch_rss_lambda(self) -> lambda_.Function:
         """Create Lambda function for fetching RSS feeds."""
+        # Use local bundling to install pip dependencies without Docker
         fn = lambda_.Function(
             self,
             "FetchRssHandler",
             function_name=f"stonksfeed-fetch-rss-{self.env_name}",
             runtime=lambda_.Runtime.PYTHON_3_12,
             handler="handler.lambda_handler",
-            code=lambda_.Code.from_asset("lambdas/fetch_rss"),
+            code=lambda_.Code.from_asset(
+                "lambdas/fetch_rss",
+                bundling=BundlingOptions(
+                    image=lambda_.Runtime.PYTHON_3_12.bundling_image,
+                    local=LocalBundler(),
+                ),
+            ),
             timeout=Duration.seconds(60),
             memory_size=256,
             environment={

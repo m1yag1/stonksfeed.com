@@ -43,5 +43,8 @@ terraform.rc
 # AWS SAM
 .aws-sam*
 
+# AWS CDK
+cdk.out/
+
 **/lambda-stonksfeed/build/*
 node_modules/

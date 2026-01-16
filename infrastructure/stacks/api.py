@@ -122,16 +122,20 @@ class ApiStack(Stack):
             api_name=f"stonksfeed-api-{self.env_name}",
             description="Stonksfeed Articles API",
             cors_preflight=apigwv2.CorsPreflightOptions(
-                allow_origins=["https://stonksfeed.com", "http://localhost:*"],
+                allow_origins=[
+                    "https://stonksfeed.com",
+                    "http://localhost:8080",
+                    "http://localhost:5173",
+                ],
                 allow_methods=[apigwv2.CorsHttpMethod.GET],
                 allow_headers=["Content-Type"],
                 max_age=Duration.hours(1),
             ),
         )
 
-        # Add route
+        # Add route - path must match CloudFront behavior pattern /api/*
         http_api.add_routes(
-            path="/articles",
+            path="/api/articles",
             methods=[apigwv2.HttpMethod.GET],
             integration=integration,
         )
