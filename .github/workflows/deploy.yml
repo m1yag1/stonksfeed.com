@@ -5,6 +5,12 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      deploy_backend:
+        description: 'Force deploy backend stack'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -13,9 +19,35 @@ env:
   AWS_REGION: us-east-1
 
 jobs:
-  lint-and-typecheck:
-    name: Lint & TypeCheck
+  # Detect which parts of the codebase changed
+  changes:
+    name: Detect Changes
     runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+      python: ${{ steps.filter.outputs.python }}
+      infrastructure: ${{ steps.filter.outputs.infrastructure }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            frontend:
+              - 'frontend/**'
+            python:
+              - 'packages/stonksfeed/**'
+            infrastructure:
+              - 'infrastructure/**'
+
+  # Frontend lint and typecheck
+  lint-and-typecheck:
+    name: Lint & TypeCheck (Frontend)
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true' || github.event_name == 'workflow_dispatch'
 
     steps:
       - name: Checkout code
@@ -40,10 +72,40 @@ jobs:
         working-directory: frontend
         run: npm run typecheck
 
-  build:
-    name: Build Application
+  # Python package tests
+  python-tests:
+    name: Python Tests
     runs-on: ubuntu-latest
-    needs: lint-and-typecheck
+    needs: changes
+    if: needs.changes.outputs.python == 'true' || needs.changes.outputs.infrastructure == 'true' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Install dependencies
+        working-directory: packages/stonksfeed
+        run: uv sync --all-extras
+
+      - name: Run linter
+        working-directory: packages/stonksfeed
+        run: uv run ruff check src/ tests/
+
+      - name: Run tests
+        working-directory: packages/stonksfeed
+        run: uv run pytest tests/ -v
+
+  # Frontend build
+  build:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+    needs: [changes, lint-and-typecheck]
+    if: always() && (needs.changes.outputs.frontend == 'true' || github.event_name == 'workflow_dispatch') && needs.lint-and-typecheck.result == 'success'
 
     steps:
       - name: Checkout code
@@ -71,10 +133,12 @@ jobs:
           path: frontend/dist/
           retention-days: 1
 
+  # Frontend tests
   test:
     name: Frontend Tests
     runs-on: ubuntu-latest
-    needs: lint-and-typecheck
+    needs: [changes, lint-and-typecheck]
+    if: always() && (needs.changes.outputs.frontend == 'true' || github.event_name == 'workflow_dispatch') && needs.lint-and-typecheck.result == 'success'
 
     steps:
       - name: Checkout code
@@ -95,10 +159,12 @@ jobs:
         working-directory: frontend
         run: npm test
 
+  # Deploy frontend to S3
   deploy-site:
-    name: Deploy to S3
+    name: Deploy Frontend to S3
     runs-on: ubuntu-latest
-    needs: [build, test]
+    needs: [changes, build, test]
+    if: always() && (needs.changes.outputs.frontend == 'true' || github.event_name == 'workflow_dispatch') && needs.build.result == 'success' && needs.test.result == 'success'
     environment: production
 
     steps:
@@ -145,9 +211,32 @@ jobs:
 
       - name: Deployment Summary
         run: |
-          echo "## Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "## Frontend Deployment Complete" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **S3 Bucket**: stonksfeed-site" >> $GITHUB_STEP_SUMMARY
           echo "- **CloudFront Distribution**: ER8TKJHELQELY" >> $GITHUB_STEP_SUMMARY
           echo "- **Site URL**: https://stonksfeed.com" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+
+  # Note: Backend deployment is intentionally NOT automated
+  # Deploy backend manually when Python package or infrastructure changes
+  notify-backend-changes:
+    name: Backend Changes Detected
+    runs-on: ubuntu-latest
+    needs: [changes, python-tests]
+    if: always() && (needs.changes.outputs.python == 'true' || needs.changes.outputs.infrastructure == 'true') && needs.python-tests.result == 'success'
+
+    steps:
+      - name: Notify about backend changes
+        run: |
+          echo "## Backend Changes Detected" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Python package or infrastructure files have changed." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "To deploy the backend stack, run locally:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "cd infrastructure" >> $GITHUB_STEP_SUMMARY
+          echo "ave marbz-admin -- uv run cdk deploy -c stack_type=backend ..." >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Or use the deploy-infrastructure workflow manually." >> $GITHUB_STEP_SUMMARY
