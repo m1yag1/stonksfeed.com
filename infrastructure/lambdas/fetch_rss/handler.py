@@ -9,12 +9,9 @@ import os
 import boto3
 from botocore.exceptions import ClientError
 
-from stonksfeed.config import rss_feeds
+from stonksfeed.config import RSS_FEEDS, SI_FORUMS
 from stonksfeed.rss.rss_reader import RSSReader
-from stonksfeed.web.siliconinvestor import (
-    si_ai_robotics_forum,
-    si_amd_intel_nvda_forum,
-)
+from stonksfeed.web.siliconinvestor import SiliconInvestorPage
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -47,7 +44,7 @@ def insert_item(client, table_name: str, item: dict) -> bool:
 def fetch_rss_articles() -> list:
     """Fetch articles from all configured RSS feeds."""
     articles = []
-    for feed_config in rss_feeds:
+    for feed_config in RSS_FEEDS:
         try:
             reader = RSSReader(
                 publisher=feed_config["publisher"],
@@ -67,15 +64,18 @@ def fetch_rss_articles() -> list:
 def fetch_forum_articles() -> list:
     """Fetch articles from Silicon Investor forums."""
     articles = []
-    forums = [si_ai_robotics_forum, si_amd_intel_nvda_forum]
 
-    for forum in forums:
+    for forum_config in SI_FORUMS:
         try:
-            forum_articles = forum.get_articles()
+            scraper = SiliconInvestorPage(
+                title=forum_config["title"],
+                url=forum_config["url"],
+            )
+            forum_articles = scraper.get_articles()
             articles.extend(forum_articles)
-            logger.info(f"Fetched {len(forum_articles)} posts from {forum.title}")
+            logger.info(f"Fetched {len(forum_articles)} posts from {forum_config['title']}")
         except Exception as e:
-            logger.error(f"Error scraping {forum.title}: {e}")
+            logger.error(f"Error scraping {forum_config['title']}: {e}")
     return articles
 
 

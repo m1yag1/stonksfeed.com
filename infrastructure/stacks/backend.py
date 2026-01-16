@@ -6,12 +6,12 @@ Creates:
 - EventBridge rule for scheduled execution
 """
 
-import os
 import shutil
 import subprocess
 from pathlib import Path
 
 import aws_cdk as cdk
+import jsii
 from aws_cdk import (
     BundlingOptions,
     CfnOutput,
@@ -25,7 +25,6 @@ from aws_cdk import (
     aws_logs as logs,
 )
 from constructs import Construct
-import jsii
 
 
 @jsii.implements(ILocalBundling)
@@ -36,22 +35,38 @@ class LocalBundler:
         """
         Bundle the Lambda code with pip dependencies.
 
+        Copies Lambda handler and stonksfeed package, then installs pip deps.
+
         :param output_dir: Directory where bundled code should be placed
         :param options: Bundling options (not used for local bundling)
         :return: True if bundling succeeded
         """
-        source_dir = Path("lambdas/fetch_rss")
+        # Paths relative to infrastructure/ directory (where cdk runs)
+        lambda_dir = Path("lambdas/fetch_rss")
+        package_dir = Path("../packages/stonksfeed/src/stonksfeed")
 
-        # Copy all source files to output
-        for item in source_dir.iterdir():
+        # Copy Lambda handler and other files (excluding stonksfeed dir if present)
+        for item in lambda_dir.iterdir():
+            if item.name in ("stonksfeed", "__pycache__"):
+                continue
             dest = Path(output_dir) / item.name
             if item.is_dir():
                 shutil.copytree(item, dest)
             else:
                 shutil.copy2(item, dest)
 
+        # Copy stonksfeed package from packages/
+        stonksfeed_dest = Path(output_dir) / "stonksfeed"
+        if package_dir.exists():
+            shutil.copytree(package_dir, stonksfeed_dest)
+        else:
+            # Fallback to Lambda directory if package not found
+            lambda_stonksfeed = lambda_dir / "stonksfeed"
+            if lambda_stonksfeed.exists():
+                shutil.copytree(lambda_stonksfeed, stonksfeed_dest)
+
         # Install pip dependencies
-        requirements = source_dir / "requirements.txt"
+        requirements = lambda_dir / "requirements.txt"
         if requirements.exists():
             subprocess.run(
                 [
