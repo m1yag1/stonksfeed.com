@@ -1,17 +1,57 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useArticles } from '@/hooks/useArticles';
 import Header from '@/components/Header';
 import NewsCard from '@/components/NewsCard';
 import SearchBar from '@/components/SearchBar';
 import SortDropdown, { SortOption } from '@/components/SortDropdown';
 import StatsBar from '@/components/StatsBar';
+import FilterWidget from '@/components/FilterWidget';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('date');
+  const [selectedPublishers, setSelectedPublishers] = useState<Set<string>>(new Set());
+  const [selectedFeeds, setSelectedFeeds] = useState<Set<string>>(new Set());
+  const [selectedSourceTypes, setSelectedSourceTypes] = useState<Set<string>>(new Set());
 
   const { data: articles = [], isLoading, error } = useArticles(200);
+
+  // Derive filter options from articles
+  const { publishers, feedTitles, sourceTypes } = useMemo(() => {
+    const pubs = [...new Set(articles.map(a => a.publisher))].sort();
+    const feeds = [...new Set(articles.map(a => a.feedTitle))].sort();
+    const sources = [...new Set(articles.map(a => a.sourceType).filter(Boolean))].sort();
+    return { publishers: pubs, feedTitles: feeds, sourceTypes: sources };
+  }, [articles]);
+
+  const toggleSetItem = useCallback((set: Set<string>, item: string): Set<string> => {
+    const newSet = new Set(set);
+    if (newSet.has(item)) {
+      newSet.delete(item);
+    } else {
+      newSet.add(item);
+    }
+    return newSet;
+  }, []);
+
+  const handlePublisherToggle = useCallback((publisher: string) => {
+    setSelectedPublishers(prev => toggleSetItem(prev, publisher));
+  }, [toggleSetItem]);
+
+  const handleFeedToggle = useCallback((feed: string) => {
+    setSelectedFeeds(prev => toggleSetItem(prev, feed));
+  }, [toggleSetItem]);
+
+  const handleSourceTypeToggle = useCallback((sourceType: string) => {
+    setSelectedSourceTypes(prev => toggleSetItem(prev, sourceType));
+  }, [toggleSetItem]);
+
+  const handleClearAllFilters = useCallback(() => {
+    setSelectedPublishers(new Set());
+    setSelectedFeeds(new Set());
+    setSelectedSourceTypes(new Set());
+  }, []);
 
   const filteredAndSortedNews = useMemo(() => {
     let result = [...articles];
@@ -25,6 +65,21 @@ const Index = () => {
           news.publisher.toLowerCase().includes(query) ||
           news.feedTitle.toLowerCase().includes(query)
       );
+    }
+
+    // Filter by publishers
+    if (selectedPublishers.size > 0) {
+      result = result.filter((news) => selectedPublishers.has(news.publisher));
+    }
+
+    // Filter by feeds
+    if (selectedFeeds.size > 0) {
+      result = result.filter((news) => selectedFeeds.has(news.feedTitle));
+    }
+
+    // Filter by source type
+    if (selectedSourceTypes.size > 0) {
+      result = result.filter((news) => news.sourceType && selectedSourceTypes.has(news.sourceType));
     }
 
     // Sort
@@ -42,7 +97,9 @@ const Index = () => {
     });
 
     return result;
-  }, [articles, searchQuery, sortBy]);
+  }, [articles, searchQuery, sortBy, selectedPublishers, selectedFeeds, selectedSourceTypes]);
+
+  const activeFilterCount = selectedPublishers.size + selectedFeeds.size + selectedSourceTypes.size;
 
   return (
     <div className="min-h-screen bg-background">
@@ -55,11 +112,25 @@ const Index = () => {
         {/* Controls */}
         <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 sm:items-center">
           <SearchBar value={searchQuery} onChange={setSearchQuery} />
-          <SortDropdown value={sortBy} onChange={setSortBy} />
+          <div className="flex gap-2 sm:gap-3">
+            <FilterWidget
+              publishers={publishers}
+              feedTitles={feedTitles}
+              sourceTypes={sourceTypes}
+              selectedPublishers={selectedPublishers}
+              selectedFeeds={selectedFeeds}
+              selectedSourceTypes={selectedSourceTypes}
+              onPublisherToggle={handlePublisherToggle}
+              onFeedToggle={handleFeedToggle}
+              onSourceTypeToggle={handleSourceTypeToggle}
+              onClearAll={handleClearAllFilters}
+            />
+            <SortDropdown value={sortBy} onChange={setSortBy} />
+          </div>
         </div>
 
         {/* Results count */}
-        <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+        <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground flex-wrap">
           <span>Showing</span>
           <span className="font-mono text-primary font-semibold">{filteredAndSortedNews.length}</span>
           <span>of</span>
@@ -68,6 +139,11 @@ const Index = () => {
           {searchQuery && (
             <span className="text-accent truncate max-w-[120px] sm:max-w-none">
               for "{searchQuery}"
+            </span>
+          )}
+          {activeFilterCount > 0 && (
+            <span className="text-muted-foreground/70">
+              • {activeFilterCount} filter{activeFilterCount !== 1 ? 's' : ''} active
             </span>
           )}
         </div>
