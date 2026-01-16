@@ -1,0 +1,130 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@layer base {
+  :root {
+    --background: 220 20% 6%;
+    --foreground: 60 10% 95%;
+
+    --card: 220 18% 10%;
+    --card-foreground: 60 10% 95%;
+
+    --popover: 220 18% 10%;
+    --popover-foreground: 60 10% 95%;
+
+    --primary: 142 76% 50%;
+    --primary-foreground: 220 20% 6%;
+
+    --secondary: 220 15% 16%;
+    --secondary-foreground: 60 10% 90%;
+
+    --muted: 220 15% 14%;
+    --muted-foreground: 220 10% 55%;
+
+    --accent: 175 85% 45%;
+    --accent-foreground: 220 20% 6%;
+
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 60 10% 95%;
+
+    --border: 220 15% 18%;
+    --input: 220 15% 18%;
+    --ring: 142 76% 50%;
+
+    --radius: 0.75rem;
+
+    /* Custom stonks tokens */
+    --gains: 142 76% 50%;
+    --losses: 0 75% 55%;
+    --neon-glow: 142 76% 50%;
+    --neon-cyan: 175 85% 45%;
+    --diamond: 200 90% 70%;
+
+    --sidebar-background: 220 18% 8%;
+    --sidebar-foreground: 60 10% 90%;
+    --sidebar-primary: 142 76% 50%;
+    --sidebar-primary-foreground: 220 20% 6%;
+    --sidebar-accent: 220 15% 14%;
+    --sidebar-accent-foreground: 60 10% 90%;
+    --sidebar-border: 220 15% 18%;
+    --sidebar-ring: 142 76% 50%;
+  }
+
+  .dark {
+    --background: 220 20% 6%;
+    --foreground: 60 10% 95%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  code, pre {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+@layer utilities {
+  .text-gains {
+    color: hsl(var(--gains));
+  }
+
+  .text-losses {
+    color: hsl(var(--losses));
+  }
+
+  .glow-gains {
+    box-shadow: 0 0 20px hsl(var(--gains) / 0.3), 0 0 40px hsl(var(--gains) / 0.1);
+  }
+
+  .glow-cyan {
+    box-shadow: 0 0 20px hsl(var(--neon-cyan) / 0.3), 0 0 40px hsl(var(--neon-cyan) / 0.1);
+  }
+
+  .text-glow-gains {
+    text-shadow: 0 0 10px hsl(var(--gains) / 0.5), 0 0 20px hsl(var(--gains) / 0.3);
+  }
+
+  .gradient-stonks {
+    background: linear-gradient(135deg, hsl(var(--gains)) 0%, hsl(var(--neon-cyan)) 100%);
+  }
+
+  .gradient-text-stonks {
+    background: linear-gradient(135deg, hsl(var(--gains)) 0%, hsl(var(--neon-cyan)) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
+}

@@ -1,0 +1,301 @@
+{
+ "Resources": {
+  "CiCdUser96795786": {
+   "Type": "AWS::IAM::User",
+   "Properties": {
+    "ManagedPolicyArns": [
+     {
+      "Ref": "DeploymentPolicy0BDD7C32"
+     },
+     {
+      "Ref": "CdkPolicy1902216A"
+     }
+    ],
+    "UserName": "stonksfeed-cicd"
+   },
+   "Metadata": {
+    "aws:cdk:path": "Stonksfeed-CiCd/CiCdUser/Resource"
+   }
+  },
+  "DeploymentPolicy0BDD7C32": {
+   "Type": "AWS::IAM::ManagedPolicy",
+   "Properties": {
+    "Description": "",
+    "ManagedPolicyName": "stonksfeed-deployment-policy",
+    "Path": "/",
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "s3:DeleteObject",
+        "s3:GetBucketLocation",
+        "s3:GetObject",
+        "s3:ListBucket",
+        "s3:PutObject"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        "arn:aws:s3:::stonksfeed-site",
+        "arn:aws:s3:::stonksfeed-site/*"
+       ],
+       "Sid": "S3StaticSiteAccess"
+      },
+      {
+       "Action": [
+        "cloudfront:CreateInvalidation",
+        "cloudfront:GetDistribution",
+        "cloudfront:GetInvalidation",
+        "cloudfront:ListDistributions"
+       ],
+       "Effect": "Allow",
+       "Resource": "*",
+       "Sid": "CloudFrontAccess"
+      },
+      {
+       "Action": "cloudformation:*",
+       "Effect": "Allow",
+       "Resource": [
+        "arn:aws:cloudformation:us-east-1:478643413292:stack/CDKToolkit/*",
+        "arn:aws:cloudformation:us-east-1:478643413292:stack/Stonksfeed-*/*"
+       ],
+       "Sid": "CloudFormationAccess"
+      },
+      {
+       "Action": "ssm:GetParameter",
+       "Effect": "Allow",
+       "Resource": "arn:aws:ssm:us-east-1:478643413292:parameter/cdk-bootstrap/*",
+       "Sid": "SSMParameterAccess"
+      },
+      {
+       "Action": "sts:GetCallerIdentity",
+       "Effect": "Allow",
+       "Resource": "*",
+       "Sid": "STSAccess"
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "Stonksfeed-CiCd/DeploymentPolicy/Resource"
+   }
+  },
+  "CdkPolicy1902216A": {
+   "Type": "AWS::IAM::ManagedPolicy",
+   "Properties": {
+    "Description": "",
+    "ManagedPolicyName": "stonksfeed-cdk-policy",
+    "Path": "/",
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "iam:PassRole",
+       "Effect": "Allow",
+       "Resource": "arn:aws:iam::478643413292:role/cdk-*",
+       "Sid": "CDKRoleAccess"
+      },
+      {
+       "Action": "s3:*",
+       "Effect": "Allow",
+       "Resource": [
+        "arn:aws:s3:::cdk-*-assets-478643413292-us-east-1",
+        "arn:aws:s3:::cdk-*-assets-478643413292-us-east-1/*"
+       ],
+       "Sid": "CDKBootstrapBucketAccess"
+      },
+      {
+       "Action": "s3:*",
+       "Effect": "Allow",
+       "Resource": "arn:aws:s3:::stonksfeed-site",
+       "Sid": "S3BucketManagement"
+      },
+      {
+       "Action": "cloudfront:*",
+       "Effect": "Allow",
+       "Resource": "*",
+       "Sid": "CloudFrontManagement"
+      },
+      {
+       "Action": "lambda:*",
+       "Effect": "Allow",
+       "Resource": "arn:aws:lambda:us-east-1:478643413292:function:stonksfeed-*",
+       "Sid": "LambdaManagement"
+      },
+      {
+       "Action": "dynamodb:*",
+       "Effect": "Allow",
+       "Resource": "arn:aws:dynamodb:us-east-1:478643413292:table/stonk_articles_*",
+       "Sid": "DynamoDBManagement"
+      },
+      {
+       "Action": "events:*",
+       "Effect": "Allow",
+       "Resource": "arn:aws:events:us-east-1:478643413292:rule/stonksfeed-*",
+       "Sid": "EventBridgeManagement"
+      },
+      {
+       "Action": [
+        "iam:AttachRolePolicy",
+        "iam:CreateRole",
+        "iam:DeleteRole",
+        "iam:DeleteRolePolicy",
+        "iam:DetachRolePolicy",
+        "iam:GetRole",
+        "iam:GetRolePolicy",
+        "iam:PutRolePolicy",
+        "iam:TagRole",
+        "iam:UntagRole"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        "arn:aws:iam::478643413292:role/Stonksfeed-*",
+        "arn:aws:iam::478643413292:role/stonksfeed-*"
+       ],
+       "Sid": "IamLambdaRoleManagement"
+      },
+      {
+       "Action": [
+        "logs:CreateLogGroup",
+        "logs:DeleteLogGroup",
+        "logs:DescribeLogGroups",
+        "logs:PutRetentionPolicy"
+       ],
+       "Effect": "Allow",
+       "Resource": "arn:aws:logs:us-east-1:478643413292:log-group:/aws/lambda/stonksfeed-*",
+       "Sid": "CloudWatchLogsAccess"
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "Stonksfeed-CiCd/CdkPolicy/Resource"
+   }
+  },
+  "CiCdUserAccessKeyDF1C5389": {
+   "Type": "AWS::IAM::AccessKey",
+   "Properties": {
+    "UserName": {
+     "Ref": "CiCdUser96795786"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "Stonksfeed-CiCd/CiCdUserAccessKey/Resource"
+   }
+  },
+  "CiCdCredentialsA178FD1F": {
+   "Type": "AWS::SecretsManager::Secret",
+   "Properties": {
+    "Description": "CI/CD credentials for stonksfeed GitHub Actions",
+    "Name": "stonksfeed/cicd/credentials",
+    "SecretString": {
+     "Fn::Join": [
+      "",
+      [
+       "{\"access_key_id\":\"",
+       {
+        "Ref": "CiCdUserAccessKeyDF1C5389"
+       },
+       "\",\"secret_access_key\":\"",
+       {
+        "Fn::GetAtt": [
+         "CiCdUserAccessKeyDF1C5389",
+         "SecretAccessKey"
+        ]
+       },
+       "\"}"
+      ]
+     ]
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "Stonksfeed-CiCd/CiCdCredentials/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/1WNwQrCMBBEv6X3ZNUWvYtHkZaKZ4nbVWPbVLIJUkr+3SYFwdPMvBmYHPJiC+tMfVhi08pO32A6O4WtmNF10qqH6cJkxeFukp6UUQ9qqqHTOEb6D/aIxHykVP1CEExoyXGfxnb+SDmOFheCqIkHb5EiLL17exdENbrnYFYFbHLYZS/WWlpvnO4J6kW/GO3pxMIAAAA="
+   },
+   "Metadata": {
+    "aws:cdk:path": "Stonksfeed-CiCd/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "CiCdUserName": {
+   "Description": "IAM user for GitHub Actions",
+   "Value": {
+    "Ref": "CiCdUser96795786"
+   }
+  },
+  "CredentialsSecretName": {
+   "Description": "Secrets Manager secret name for credentials",
+   "Value": {
+    "Fn::Select": [
+     0,
+     {
+      "Fn::Split": [
+       "-",
+       {
+        "Fn::Select": [
+         6,
+         {
+          "Fn::Split": [
+           ":",
+           {
+            "Ref": "CiCdCredentialsA178FD1F"
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  },
+  "AccessKeyId": {
+   "Description": "Access Key ID (secret key in Secrets Manager)",
+   "Value": {
+    "Ref": "CiCdUserAccessKeyDF1C5389"
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

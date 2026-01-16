@@ -1,0 +1,322 @@
+{
+ "Resources": {
+  "FetchRssHandlerServiceRoleBC442929": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "Stonksfeed-Backend-Production/FetchRssHandler/ServiceRole/Resource"
+   }
+  },
+  "FetchRssHandlerServiceRoleDefaultPolicyE0D15AAA": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "dynamodb:GetItem",
+        "dynamodb:PutItem",
+        "dynamodb:Query",
+        "dynamodb:Scan"
+       ],
+       "Effect": "Allow",
+       "Resource": "arn:aws:dynamodb:us-east-1:478643413292:table/stonk_articles_production_table"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "FetchRssHandlerServiceRoleDefaultPolicyE0D15AAA",
+    "Roles": [
+     {
+      "Ref": "FetchRssHandlerServiceRoleBC442929"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "Stonksfeed-Backend-Production/FetchRssHandler/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "FetchRssHandler2B3A59F9": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-478643413292-us-east-1",
+     "S3Key": "984850c9200ced5147b60455625b5340d78c17049ac8932f49304c79c834f76f.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "DYNAMODB_TABLE": "stonk_articles_production_table"
+     }
+    },
+    "FunctionName": "stonksfeed-fetch-rss-production",
+    "Handler": "handler.lambda_handler",
+    "MemorySize": 256,
+    "Role": {
+     "Fn::GetAtt": [
+      "FetchRssHandlerServiceRoleBC442929",
+      "Arn"
+     ]
+    },
+    "Runtime": "python3.12",
+    "Timeout": 60
+   },
+   "DependsOn": [
+    "FetchRssHandlerServiceRoleDefaultPolicyE0D15AAA",
+    "FetchRssHandlerServiceRoleBC442929"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "Stonksfeed-Backend-Production/FetchRssHandler/Resource",
+    "aws:asset:path": "asset.984850c9200ced5147b60455625b5340d78c17049ac8932f49304c79c834f76f",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "FetchRssHandlerLogRetentionACA7A3EE": {
+   "Type": "Custom::LogRetention",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+      "Arn"
+     ]
+    },
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "FetchRssHandler2B3A59F9"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 14
+   },
+   "Metadata": {
+    "aws:cdk:path": "Stonksfeed-Backend-Production/FetchRssHandler/LogRetention/Resource"
+   }
+  },
+  "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "Stonksfeed-Backend-Production/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/Resource"
+   }
+  },
+  "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "logs:DeleteRetentionPolicy",
+        "logs:PutRetentionPolicy"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
+    "Roles": [
+     {
+      "Ref": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "Stonksfeed-Backend-Production/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Handler": "index.handler",
+    "Runtime": "nodejs22.x",
+    "Timeout": 900,
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-478643413292-us-east-1",
+     "S3Key": "2819175352ad1ce0dae768e83fc328fb70fb5f10b4a8ff0ccbcb791f02b0716d.zip"
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB",
+      "Arn"
+     ]
+    }
+   },
+   "DependsOn": [
+    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
+    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "Stonksfeed-Backend-Production/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Resource",
+    "aws:asset:path": "asset.2819175352ad1ce0dae768e83fc328fb70fb5f10b4a8ff0ccbcb791f02b0716d",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "FetchRssSchedule3A6DBA94": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "Description": "Trigger RSS fetch Lambda every 3 hours on weekdays",
+    "Name": "stonksfeed-fetch-rss-production",
+    "ScheduleExpression": "cron(0 0-23/3 ? * MON-FRI *)",
+    "State": "ENABLED",
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::GetAtt": [
+        "FetchRssHandler2B3A59F9",
+        "Arn"
+       ]
+      },
+      "Id": "Target0"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "Stonksfeed-Backend-Production/FetchRssSchedule/Resource"
+   }
+  },
+  "FetchRssScheduleAllowEventRuleStonksfeedBackendProductionFetchRssHandlerAF6DA172588D5B3E": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "FetchRssHandler2B3A59F9",
+      "Arn"
+     ]
+    },
+    "Principal": "events.amazonaws.com",
+    "SourceArn": {
+     "Fn::GetAtt": [
+      "FetchRssSchedule3A6DBA94",
+      "Arn"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "Stonksfeed-Backend-Production/FetchRssSchedule/AllowEventRuleStonksfeedBackendProductionFetchRssHandlerAF6DA172"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/02OwQrCMBBEv8V7umqL3lXwJFjqB5SYrjU2TaSbKFLy726jgqd5s7PMbg55sYLFTD4pU02XGX2G8eSl6gSP6tHI/txIGPfBKq+dFbuL/ecSh14TsYtCyx7GyhmcgqSlM1q90l6iKKioJRF6gs0k7GEbVId+KwmFcS3BwbUVerTpBD4YiGvDt5Y1RlEhuTAoFKmF/221bVP+C5iPwd+Dj6J8+auz8wKWOaxnN9I6GwLX9wjVR99KPNIKBgEAAA=="
+   },
+   "Metadata": {
+    "aws:cdk:path": "Stonksfeed-Backend-Production/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "FetchRssLambdaName": {
+   "Description": "Lambda function name for RSS fetching",
+   "Value": {
+    "Ref": "FetchRssHandler2B3A59F9"
+   }
+  },
+  "FetchRssLambdaArn": {
+   "Description": "Lambda function ARN",
+   "Value": {
+    "Fn::GetAtt": [
+     "FetchRssHandler2B3A59F9",
+     "Arn"
+    ]
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

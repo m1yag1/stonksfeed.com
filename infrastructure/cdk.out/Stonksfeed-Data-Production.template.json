@@ -1,0 +1,96 @@
+{
+ "Resources": {
+  "ArticlesTableA36865D8": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "headline",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "pubdate",
+      "AttributeType": "N"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "KeySchema": [
+     {
+      "AttributeName": "headline",
+      "KeyType": "HASH"
+     },
+     {
+      "AttributeName": "pubdate",
+      "KeyType": "RANGE"
+     }
+    ],
+    "TableName": "stonk_articles_production_table"
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "Stonksfeed-Data-Production/ArticlesTable/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/yXISw5AMBRA0bWYtw8VNmABBHOptqI+rbSvERF7J4zuzWHAshySiB+eCrnQVQ9wtcjFQl7q5Wn4ZuVrHR9WRcrRfHOTRnkbnPioCrgHvEl94mRNnEHKoIhmrzV1waDeFDR/H1jl7L1vAAAA"
+   },
+   "Metadata": {
+    "aws:cdk:path": "Stonksfeed-Data-Production/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "TableName": {
+   "Description": "DynamoDB table name for articles",
+   "Value": {
+    "Ref": "ArticlesTableA36865D8"
+   }
+  },
+  "TableArn": {
+   "Description": "DynamoDB table ARN",
+   "Value": {
+    "Fn::GetAtt": [
+     "ArticlesTableA36865D8",
+     "Arn"
+    ]
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

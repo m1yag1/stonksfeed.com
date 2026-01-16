@@ -1,0 +1,51 @@
+{
+  "version": "48.0.0",
+  "files": {
+    "984850c9200ced5147b60455625b5340d78c17049ac8932f49304c79c834f76f": {
+      "displayName": "FetchRssHandler/Code",
+      "source": {
+        "path": "asset.984850c9200ced5147b60455625b5340d78c17049ac8932f49304c79c834f76f",
+        "packaging": "zip"
+      },
+      "destinations": {
+        "478643413292-us-east-1-18dbb845": {
+          "bucketName": "cdk-hnb659fds-assets-478643413292-us-east-1",
+          "objectKey": "984850c9200ced5147b60455625b5340d78c17049ac8932f49304c79c834f76f.zip",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::478643413292:role/cdk-hnb659fds-file-publishing-role-478643413292-us-east-1"
+        }
+      }
+    },
+    "2819175352ad1ce0dae768e83fc328fb70fb5f10b4a8ff0ccbcb791f02b0716d": {
+      "displayName": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Code",
+      "source": {
+        "path": "asset.2819175352ad1ce0dae768e83fc328fb70fb5f10b4a8ff0ccbcb791f02b0716d",
+        "packaging": "zip"
+      },
+      "destinations": {
+        "478643413292-us-east-1-80db53fd": {
+          "bucketName": "cdk-hnb659fds-assets-478643413292-us-east-1",
+          "objectKey": "2819175352ad1ce0dae768e83fc328fb70fb5f10b4a8ff0ccbcb791f02b0716d.zip",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::478643413292:role/cdk-hnb659fds-file-publishing-role-478643413292-us-east-1"
+        }
+      }
+    },
+    "5fc55136d8d98169848e53cf60f28286a13df9458ebeb0036a54760ac0782c61": {
+      "displayName": "Stonksfeed-Backend-Production Template",
+      "source": {
+        "path": "Stonksfeed-Backend-Production.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "478643413292-us-east-1-c71d4243": {
+          "bucketName": "cdk-hnb659fds-assets-478643413292-us-east-1",
+          "objectKey": "5fc55136d8d98169848e53cf60f28286a13df9458ebeb0036a54760ac0782c61.json",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::478643413292:role/cdk-hnb659fds-file-publishing-role-478643413292-us-east-1"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}
