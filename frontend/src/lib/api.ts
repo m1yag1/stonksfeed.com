@@ -7,6 +7,9 @@ export interface Article {
   link: string;
   source_type: string;
   author?: string;
+  sentiment_score?: number;
+  sentiment_label?: 'bullish' | 'bearish' | 'neutral';
+  tickers?: string[];
 }
 
 export interface ArticlesResponse {
@@ -22,6 +25,9 @@ export interface NewsItem {
   date: Date;
   link: string;
   sourceType: string;
+  sentimentScore?: number;
+  sentimentLabel?: 'bullish' | 'bearish' | 'neutral';
+  tickers?: string[];
 }
 
 /**
@@ -44,5 +50,8 @@ export async function fetchArticles(limit: number = 100): Promise<NewsItem[]> {
     date: new Date(article.pubdate * 1000),
     link: article.link,
     sourceType: article.source_type,
+    sentimentScore: article.sentiment_score,
+    sentimentLabel: article.sentiment_label,
+    tickers: article.tickers,
   }));
 }

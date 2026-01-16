@@ -1,7 +1,7 @@
 import { NewsItem } from '@/lib/api';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Building2, ExternalLink } from 'lucide-react';
+import { Clock, Building2, ExternalLink, TrendingUp, TrendingDown } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 interface NewsCardProps {
@@ -23,7 +23,13 @@ const NewsCard = ({ news, index }: NewsCardProps) => {
       >
         <CardHeader className="pb-2 sm:pb-3 px-4 sm:px-6 pt-4 sm:pt-6">
           <div className="flex items-start justify-between gap-3">
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 flex items-start gap-2">
+              {news.sentimentLabel === 'bullish' && (
+                <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-gains shrink-0 mt-0.5" />
+              )}
+              {news.sentimentLabel === 'bearish' && (
+                <TrendingDown className="w-4 h-4 sm:w-5 sm:h-5 text-losses shrink-0 mt-0.5" />
+              )}
               <h3 className="font-semibold text-base sm:text-lg leading-tight text-foreground group-hover:text-primary transition-colors line-clamp-2">
                 {news.title}
               </h3>

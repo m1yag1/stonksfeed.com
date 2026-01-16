@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useArticles } from '@/hooks/useArticles';
 import Header from '@/components/Header';
 import NewsCard from '@/components/NewsCard';
@@ -8,21 +8,63 @@ import StatsBar from '@/components/StatsBar';
 import FilterWidget from '@/components/FilterWidget';
 import { Skeleton } from '@/components/ui/skeleton';
 
+const FILTERS_STORAGE_KEY = 'stonksfeed-filters';
+
+interface SavedFilters {
+  publishers: string[];
+  feeds: string[];
+  sourceTypes: string[];
+  sentiments: string[];
+  sortBy: SortOption;
+}
+
+const loadFilters = (): Partial<SavedFilters> => {
+  try {
+    const saved = localStorage.getItem(FILTERS_STORAGE_KEY);
+    return saved ? JSON.parse(saved) : {};
+  } catch {
+    return {};
+  }
+};
+
+const saveFilters = (filters: SavedFilters) => {
+  try {
+    localStorage.setItem(FILTERS_STORAGE_KEY, JSON.stringify(filters));
+  } catch {
+    // localStorage might be full or disabled
+  }
+};
+
 const Index = () => {
+  const savedFilters = useMemo(() => loadFilters(), []);
+
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<SortOption>('date');
-  const [selectedPublishers, setSelectedPublishers] = useState<Set<string>>(new Set());
-  const [selectedFeeds, setSelectedFeeds] = useState<Set<string>>(new Set());
-  const [selectedSourceTypes, setSelectedSourceTypes] = useState<Set<string>>(new Set());
+  const [sortBy, setSortBy] = useState<SortOption>(savedFilters.sortBy || 'date');
+  const [selectedPublishers, setSelectedPublishers] = useState<Set<string>>(new Set(savedFilters.publishers || []));
+  const [selectedFeeds, setSelectedFeeds] = useState<Set<string>>(new Set(savedFilters.feeds || []));
+  const [selectedSourceTypes, setSelectedSourceTypes] = useState<Set<string>>(new Set(savedFilters.sourceTypes || []));
+  const [selectedSentiments, setSelectedSentiments] = useState<Set<string>>(new Set(savedFilters.sentiments || []));
 
   const { data: articles = [], isLoading, error } = useArticles(200);
 
+  // Save filters to localStorage when they change
+  useEffect(() => {
+    saveFilters({
+      publishers: [...selectedPublishers],
+      feeds: [...selectedFeeds],
+      sourceTypes: [...selectedSourceTypes],
+      sentiments: [...selectedSentiments],
+      sortBy,
+    });
+  }, [selectedPublishers, selectedFeeds, selectedSourceTypes, selectedSentiments, sortBy]);
+
   // Derive filter options from articles
-  const { publishers, feedTitles, sourceTypes } = useMemo(() => {
+  const { publishers, feedTitles, sourceTypes, sentiments } = useMemo(() => {
     const pubs = [...new Set(articles.map(a => a.publisher))].sort();
     const feeds = [...new Set(articles.map(a => a.feedTitle))].sort();
     const sources = [...new Set(articles.map(a => a.sourceType).filter(Boolean))].sort();
-    return { publishers: pubs, feedTitles: feeds, sourceTypes: sources };
+    const sents = [...new Set(articles.map(a => a.sentimentLabel).filter(Boolean))] as string[];
+    return { publishers: pubs, feedTitles: feeds, sourceTypes: sources, sentiments: sents };
   }, [articles]);
 
   const toggleSetItem = useCallback((set: Set<string>, item: string): Set<string> => {
@@ -47,10 +89,15 @@ const Index = () => {
     setSelectedSourceTypes(prev => toggleSetItem(prev, sourceType));
   }, [toggleSetItem]);
 
+  const handleSentimentToggle = useCallback((sentiment: string) => {
+    setSelectedSentiments(prev => toggleSetItem(prev, sentiment));
+  }, [toggleSetItem]);
+
   const handleClearAllFilters = useCallback(() => {
     setSelectedPublishers(new Set());
     setSelectedFeeds(new Set());
     setSelectedSourceTypes(new Set());
+    setSelectedSentiments(new Set());
   }, []);
 
   const filteredAndSortedNews = useMemo(() => {
@@ -82,6 +129,11 @@ const Index = () => {
       result = result.filter((news) => news.sourceType && selectedSourceTypes.has(news.sourceType));
     }
 
+    // Filter by sentiment
+    if (selectedSentiments.size > 0) {
+      result = result.filter((news) => news.sentimentLabel && selectedSentiments.has(news.sentimentLabel));
+    }
+
     // Sort
     result.sort((a, b) => {
       switch (sortBy) {
@@ -97,9 +149,9 @@ const Index = () => {
     });
 
     return result;
-  }, [articles, searchQuery, sortBy, selectedPublishers, selectedFeeds, selectedSourceTypes]);
+  }, [articles, searchQuery, sortBy, selectedPublishers, selectedFeeds, selectedSourceTypes, selectedSentiments]);
 
-  const activeFilterCount = selectedPublishers.size + selectedFeeds.size + selectedSourceTypes.size;
+  const activeFilterCount = selectedPublishers.size + selectedFeeds.size + selectedSourceTypes.size + selectedSentiments.size;
 
   return (
     <div className="min-h-screen bg-background">
@@ -117,12 +169,15 @@ const Index = () => {
               publishers={publishers}
               feedTitles={feedTitles}
               sourceTypes={sourceTypes}
+              sentiments={sentiments}
               selectedPublishers={selectedPublishers}
               selectedFeeds={selectedFeeds}
               selectedSourceTypes={selectedSourceTypes}
+              selectedSentiments={selectedSentiments}
               onPublisherToggle={handlePublisherToggle}
               onFeedToggle={handleFeedToggle}
               onSourceTypeToggle={handleSourceTypeToggle}
+              onSentimentToggle={handleSentimentToggle}
               onClearAll={handleClearAllFilters}
             />
             <SortDropdown value={sortBy} onChange={setSortBy} />

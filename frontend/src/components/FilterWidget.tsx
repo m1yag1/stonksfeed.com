@@ -18,12 +18,15 @@ interface FilterWidgetProps {
   publishers: string[];
   feedTitles: string[];
   sourceTypes: string[];
+  sentiments: string[];
   selectedPublishers: Set<string>;
   selectedFeeds: Set<string>;
   selectedSourceTypes: Set<string>;
+  selectedSentiments: Set<string>;
   onPublisherToggle: (publisher: string) => void;
   onFeedToggle: (feed: string) => void;
   onSourceTypeToggle: (sourceType: string) => void;
+  onSentimentToggle: (sentiment: string) => void;
   onClearAll: () => void;
 }
 
@@ -73,15 +76,18 @@ const FilterWidget = ({
   publishers,
   feedTitles,
   sourceTypes,
+  sentiments,
   selectedPublishers,
   selectedFeeds,
   selectedSourceTypes,
+  selectedSentiments,
   onPublisherToggle,
   onFeedToggle,
   onSourceTypeToggle,
+  onSentimentToggle,
   onClearAll,
 }: FilterWidgetProps) => {
-  const totalSelected = selectedPublishers.size + selectedFeeds.size + selectedSourceTypes.size;
+  const totalSelected = selectedPublishers.size + selectedFeeds.size + selectedSourceTypes.size + selectedSentiments.size;
 
   return (
     <Popover>
@@ -124,6 +130,15 @@ const FilterWidget = ({
               </Button>
             )}
           </div>
+
+          {/* Sentiment */}
+          <FilterSectionContent
+            title="Sentiment"
+            icon="📊"
+            items={sentiments}
+            selected={selectedSentiments}
+            onToggle={onSentimentToggle}
+          />
 
           {/* Source Type */}
           <FilterSectionContent
