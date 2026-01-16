@@ -11,6 +11,7 @@ import boto3
 from botocore.exceptions import ClientError
 
 from stonksfeed.config import RSS_FEEDS, SI_FORUMS
+from stonksfeed.nlp import SentimentAnalyzer, TickerExtractor
 from stonksfeed.rss.rss_reader import RSSReader
 from stonksfeed.web.siliconinvestor import SiliconInvestorPage
 
@@ -25,12 +26,33 @@ TTL_DAYS = 30
 # Don't insert articles older than this many days
 MAX_AGE_DAYS = 30
 
+# Initialize NLP analyzers (reused across invocations)
+sentiment_analyzer = SentimentAnalyzer()
+ticker_extractor = TickerExtractor()
+
 
 def is_article_too_old(pubdate: int) -> bool:
     """Check if an article is older than MAX_AGE_DAYS."""
     now = int(time.time())
     max_age_seconds = MAX_AGE_DAYS * 24 * 60 * 60
     return (now - pubdate) > max_age_seconds
+
+
+def enrich_article(article) -> None:
+    """
+    Enrich an article with NLP data (sentiment and tickers).
+
+    Modifies the article in place.
+    """
+    headline = article.headline
+
+    # Sentiment analysis
+    sentiment = sentiment_analyzer.analyze(headline)
+    article.sentiment_score = sentiment["score"]
+    article.sentiment_label = sentiment["label"]
+
+    # Ticker extraction
+    article.tickers = ticker_extractor.extract(headline)
 
 
 def insert_item(client, table_name: str, item: dict) -> bool:
@@ -97,7 +119,7 @@ def article_to_dynamodb_item(article: dict) -> dict:
     # Calculate TTL: current time + 30 days (in seconds)
     ttl = int(time.time()) + (TTL_DAYS * 24 * 60 * 60)
 
-    return {
+    item = {
         "headline": {"S": article["headline"]},
         "pubdate": {"N": str(article["pubdate"])},
         "feed_title": {"S": article["feed_title"]},
@@ -107,6 +129,16 @@ def article_to_dynamodb_item(article: dict) -> dict:
         "publisher": {"S": article["publisher"]},
         "ttl": {"N": str(ttl)},
     }
+
+    # Add NLP enrichment fields if present
+    if article.get("sentiment_score") is not None:
+        item["sentiment_score"] = {"N": str(article["sentiment_score"])}
+    if article.get("sentiment_label"):
+        item["sentiment_label"] = {"S": article["sentiment_label"]}
+    if article.get("tickers"):
+        item["tickers"] = {"SS": article["tickers"]}
+
+    return item
 
 
 def lambda_handler(_event, _context):
@@ -137,13 +169,15 @@ def lambda_handler(_event, _context):
     old_count = 0
 
     for article in all_articles:
-        article_dict = article.asdict()
-
         # Skip articles older than MAX_AGE_DAYS
-        if is_article_too_old(article_dict["pubdate"]):
+        if is_article_too_old(article.pubdate):
             old_count += 1
             continue
 
+        # Enrich with NLP data
+        enrich_article(article)
+
+        article_dict = article.asdict()
         item = article_to_dynamodb_item(article_dict)
 
         if insert_item(dynamodb_client, TABLE_NAME, item):

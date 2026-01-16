@@ -23,12 +23,14 @@ ORIGIN_VERIFY_SECRET = os.environ.get("ORIGIN_VERIFY_SECRET")
 dynamodb = boto3.resource("dynamodb")
 
 
-class DecimalEncoder(json.JSONEncoder):
-    """JSON encoder that handles Decimal types from DynamoDB."""
+class DynamoDBEncoder(json.JSONEncoder):
+    """JSON encoder that handles DynamoDB types (Decimal, set)."""
 
     def default(self, o: Any) -> Any:
         if isinstance(o, Decimal):
             return int(o) if o % 1 == 0 else float(o)
+        if isinstance(o, set):
+            return list(o)
         return super().default(o)
 
 
@@ -99,7 +101,7 @@ def lambda_handler(event: dict, _context: Any) -> dict:
                 "Content-Type": "application/json",
                 "Cache-Control": "public, max-age=300",  # 5 minute cache
             },
-            "body": json.dumps({"articles": articles}, cls=DecimalEncoder),
+            "body": json.dumps({"articles": articles}, cls=DynamoDBEncoder),
         }
 
     except Exception as e:

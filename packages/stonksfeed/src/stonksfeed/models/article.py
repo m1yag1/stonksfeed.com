@@ -1,7 +1,7 @@
 """Article model for stonksfeed."""
 
-from dataclasses import asdict, dataclass
-from typing import Optional
+from dataclasses import asdict, dataclass, field
+from typing import List, Optional
 
 
 @dataclass
@@ -15,6 +15,10 @@ class Article:
     pubdate: int
     source_type: str
     author: Optional[str] = None
+    # NLP enrichment fields
+    sentiment_score: Optional[float] = None
+    sentiment_label: Optional[str] = None
+    tickers: List[str] = field(default_factory=list)
 
     def asdict(self) -> dict:
         """Convert article to dictionary."""
