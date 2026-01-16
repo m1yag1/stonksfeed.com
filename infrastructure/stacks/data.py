@@ -50,6 +50,7 @@ class DataStack(Stack):
             ),
             billing_mode=dynamodb.BillingMode.PAY_PER_REQUEST,
             removal_policy=cdk.RemovalPolicy.RETAIN,
+            time_to_live_attribute="ttl",
         )
 
         # Outputs

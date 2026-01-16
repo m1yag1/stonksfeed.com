@@ -5,6 +5,7 @@ then storing articles in DynamoDB.
 
 import logging
 import os
+import time
 
 import boto3
 from botocore.exceptions import ClientError
@@ -18,6 +19,18 @@ logger.setLevel(logging.INFO)
 
 dynamodb_client = boto3.client("dynamodb")
 TABLE_NAME = os.environ.get("DYNAMODB_TABLE")
+
+# Articles expire after 30 days
+TTL_DAYS = 30
+# Don't insert articles older than this many days
+MAX_AGE_DAYS = 30
+
+
+def is_article_too_old(pubdate: int) -> bool:
+    """Check if an article is older than MAX_AGE_DAYS."""
+    now = int(time.time())
+    max_age_seconds = MAX_AGE_DAYS * 24 * 60 * 60
+    return (now - pubdate) > max_age_seconds
 
 
 def insert_item(client, table_name: str, item: dict) -> bool:
@@ -81,6 +94,9 @@ def fetch_forum_articles() -> list:
 
 def article_to_dynamodb_item(article: dict) -> dict:
     """Convert an article dict to DynamoDB item format."""
+    # Calculate TTL: current time + 30 days (in seconds)
+    ttl = int(time.time()) + (TTL_DAYS * 24 * 60 * 60)
+
     return {
         "headline": {"S": article["headline"]},
         "pubdate": {"N": str(article["pubdate"])},
@@ -89,6 +105,7 @@ def article_to_dynamodb_item(article: dict) -> dict:
         "source_type": {"S": article["source_type"]},
         "author": {"S": article.get("author") or ""},
         "publisher": {"S": article["publisher"]},
+        "ttl": {"N": str(ttl)},
     }
 
 
@@ -117,9 +134,16 @@ def lambda_handler(_event, _context):
     # Insert into DynamoDB
     inserted_count = 0
     skipped_count = 0
+    old_count = 0
 
     for article in all_articles:
         article_dict = article.asdict()
+
+        # Skip articles older than MAX_AGE_DAYS
+        if is_article_too_old(article_dict["pubdate"]):
+            old_count += 1
+            continue
+
         item = article_to_dynamodb_item(article_dict)
 
         if insert_item(dynamodb_client, TABLE_NAME, item):
@@ -127,7 +151,7 @@ def lambda_handler(_event, _context):
         else:
             skipped_count += 1
 
-    message = f"Inserted {inserted_count} new articles, skipped {skipped_count} duplicates"
+    message = f"Inserted {inserted_count} new, skipped {skipped_count} duplicates, {old_count} too old"
     logger.info(message)
 
     return {

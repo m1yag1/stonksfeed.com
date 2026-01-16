@@ -12,11 +12,6 @@ RSS_FEEDS = [
         "feed_title": "Real-time Headlines",
         "rss_url": "https://feeds.content.dowjones.io/public/rss/mw_realtimeheadlines",
     },
-    {
-        "publisher": "Wallstreet Journal",
-        "feed_title": "Technology: What's News",
-        "rss_url": "https://feeds.a.dj.com/rss/RSSWSJD.xml",
-    },
 ]
 
 # Silicon Investor forums to scrape
