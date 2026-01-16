@@ -9,24 +9,27 @@
 			"OPA_VERSION": "0.60.0",
 			"TERRAFORM_VERSION": "1.6.6",
 			"TERRAGRUNT_VERSION": "0.54.12",
-            "POETRY_VERSION": "1.4.0"
+            "POETRY_VERSION": "1.4.0",
+            "DOCKER_VERSION": "5:24.0.0-1~debian.11~bullseye",
+            "USER_UID": "501"
 		}
     },
     "containerEnv": {
 		"SHELL": "/bin/zsh"
 	},
     "mounts": [
-        "source=${env:HOME}${env:USERPROFILE}/.aws,target=/home/vscode/.aws,type=bind,consistency=cached"
+        "source=${env:HOME}${env:USERPROFILE}/.aws,target=/home/vscode/.aws,type=bind,consistency=cached",
+        "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
     ],
     // Add the IDs of extensions you want installed when the container is created.
     "customizations": {
         "vscode": {
           "extensions": [
+            "ms-python.python",
             "hashicorp.terraform",
             "hashicorp.hcl",
             "redhat.vscode-yaml",
             "tsandall.opa",
-            "ms-python.python",
             "amazonwebservices.aws-toolkit-vscode",
             "ms-python.black-formatter",
             "ms-vscode.live-server"
@@ -34,7 +37,8 @@
         }
       },
     "remoteUser": "vscode",
-    "initializeCommand": "poetry install"
+    "initializeCommand": "python3 -V",
+    "postCreateCommand": "poetry update"
 }
 
 
