@@ -44,3 +44,4 @@ terraform.rc
 .aws-sam*
 
 **/lambda-stonksfeed/build/*
+node_modules/
